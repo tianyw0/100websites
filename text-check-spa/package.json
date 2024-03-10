@@ -1,0 +1,25 @@
+{
+  "name": "text-check",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --open",
+    "build": "vite build",
+    "preview": "vite preview",
+    "deploy-goonie": "sshpass -p ZMU6jcFNPxasTzWW scp -rp dist/* root@47.94.16.211:/home/full-spider/4.0/test3/www/risk/",
+    "deploy-wu": "sshpass -p yjzd@138 scp -P 10138 -rp dist/* root@222.128.103.228:/home/yjzd/risk/www/risk/"
+  },
+  "dependencies": {
+    "@popperjs/core": "^2.11.6",
+    "axios": "^0.27.2",
+    "bootstrap": "^5.2.0",
+    "vue": "^3.2.37"
+  },
+  "devDependencies": {
+    "@types/node": "^18.7.14",
+    "@vitejs/plugin-vue": "^3.0.3",
+    "sass": "^1.54.7",
+    "vite": "^3.0.7"
+  }
+}

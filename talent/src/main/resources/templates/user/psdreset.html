@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head th:replace="fragment/headTag"></head>
+<body>
+<div class="container">
+  <div th:replace="fragment/navbar"></div>
+  <div class="row" id="app" v-cloak>
+    <div class="col-md-6 offset-md-3 border rounded">
+      <h5 style="padding:20px;" class="border-bottom">重置密码</h5>
+      <form style="padding:20px;">
+        <div class="form-group">
+          <label for="psdresetCode">验证码</label>
+          <input type="text" class="form-control" readonly th:value="${psdresetCode}" id="psdresetCode" aria-describedby="emailHelp" placeholder="请输入邮箱地址...">
+        </div>
+        <div class="form-group">
+          <label for="email">邮箱地址</label>
+          <input type="email" class="form-control" readonly th:value="${email}" id="email" aria-describedby="emailHelp" placeholder="请输入邮箱地址...">
+        </div>
+        <div class="form-group">
+          <label for="exampleInputPassword1">密码</label>
+          <input v-model="psd1" type="password" class="form-control" id="exampleInputPassword1" placeholder="请输入密码...">
+        </div>
+        <div class="form-group">
+          <label for="exampleInputPassword1">确认密码</label>
+          <input v-model="psd2" type="password" class="form-control" id="exampleInputPassword2" placeholder="请输入确认密码...">
+        </div>
+        <button v-on:click="psdresetverify" type="button" class="btn btn-primary">重置</button>
+      </form>
+      <div v-if="errorShow" class="alert alert-danger" role="alert">
+        {{message}}
+      </div>
+      <div v-if="successShow" class="alert alert-primary" role="alert">
+        {{message}}
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+var app = new Vue({
+  el: '#app',
+  data: {
+    email: '',
+    message:'',
+    psdresetCode:'',
+    psd1:'',
+    psd2:'',
+    successShow:false,
+    errorShow:false
+  },
+  methods: {
+    psdresetverify: function () {
+      this.$http.post('/user/psdresetverify', {
+        email:$('#email').val(),
+        psdresetCode:$('#psdresetCode').val(),
+        psd1:this.psd1,
+        psd2:this.psd2
+      }, {emulateJSON: true}).then(response => {
+        console.log(response.body)
+        if(response.body.success) {
+            this.successShow = true;
+            this.errorShow = false;
+            this.message = response.body.msg;
+        } else {
+            this.errorShow = true;
+            this.successShow = false;
+            this.message = response.body.msg;
+        }
+      }, response => {
+        this.errorShow = true;
+        this.successShow = false;
+        this.message = '网络异常'
+      });
+    }
+  }
+})
+</script>
+</body>
+</html>

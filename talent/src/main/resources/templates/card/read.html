@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head th:replace="fragment/headTag"></head>
+<body>
+<div class="container">
+  <div th:replace="fragment/navbar"></div>
+  <div class="row" id="app">
+    <div class="col-md-12 offset-md-0 border rounded">
+      <nav class="navbar navbar-light border-bottom">
+        <a class="navbar-brand" href="#">主题-卡片-只读模式</a>
+        <div>
+          <div class="custom-control custom-checkbox d-inline">
+            <input type="checkbox" class="custom-control-input" id="customCheck1">
+            <label class="custom-control-label text-muted font-weight-light" for="customCheck1"><small>检测模式</small></label>
+          </div>
+          <a th:href="'/card/edit/subject/'+${subjectId}" class="btn btn-danger btn-sm d-inline" style="margin-left:20px;">进入编辑</a>
+        </div>
+      </nav>
+
+      <div id="app" v-cloak style="padding-bottom:15px;padding-top:15px;" class="d-flex flex-wrap">
+        <div th:each="card:${cards}" class="card text-center rounded" style="max-width:277px;min-width:277px;max-height:167px;min-height:167px;">
+          <div class="card-body bg-primary text-white">
+            <p class="card-text" th:text="${card.question}">正面：xxx</p>
+          </div><!--cardbody-end-->
+          <div class="card-body">
+            <p class="card-text" th:text="${card.answer}">反面：xxx</p>
+          </div><!--cardbody-end-->
+        </div><!--card-end-->
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+</script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+<view>
+  <view class="button" bindtap="chooseExcel">上传Excel文件</view>
+  <view class="button_clear" bindtap="copyDownloadUrl" wx:if="{{downloadUrl}}">复制链接</view>
+  <view class="icon-box-ctn">
+    <view class="tip">{{downloadUrl}}</view>
+  </view>
+  <cloud-tip-modal showUploadTipProps="{{showUploadTip}}"></cloud-tip-modal>
+</view>

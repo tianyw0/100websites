@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head th:replace="fragment/headTag"></head>
+<body>
+<div class="container">
+  <div th:replace="fragment/navbar"></div>
+  <div class="row" id="app" v-cloak>
+    <div class="col-md-6 offset-md-3 border rounded">
+      <nav class="navbar navbar-light">
+        <a class="navbar-brand" th:text="'主题导航（' + ${subject.name} + '）'" th:attr="subjectId=${subject.id}" id="subjectId">主题导航</a>
+        <botton class="btn btn-warning btn-sm" data-toggle="modal" data-target="#newModal">新建导航</botton>
+      </nav>
+      <div class="btn-group m-1" v-for="nav in navs">
+        <a :href="nav.url" target="_blank" class="btn btn-primary btn-sm" role="button">{{nav.title}}</a>
+        <button type="button" class="btn btn-primary btn-sm dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <span class="sr-only">Toggle Dropdown</span>
+        </button>
+        <div class="dropdown-menu">
+          <a class="dropdown-item" href="#" data-toggle="modal" :data-target="'#editModal'+nav.id" @click="editNav(nav)">编辑</a>
+          <a class="dropdown-item" href="#" data-toggle="modal" :data-target="'#delModal'+nav.id">删除</a>
+        </div>
+      </div>
+      <div style="padding-bottom:15px;" v-for="nav in navs">
+        <!-- Modal -->
+        <div class="modal" :id="'delModal' + nav.id" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">删除导航</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                确定删除该导航吗？
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary btn-sm" @click="delNav(nav)">确定</button>
+              </div>
+            </div>
+          </div>
+        </div><!-- Modal -->
+        <!-- Modal -->
+        <div class="modal fade" :id="'editModal' + nav.id" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">编辑导航</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <form>
+                  <div class="form-group">
+                    <label for="recipient-name" class="col-form-label">导航title:</label>
+                    <input type="text" class="form-control" v-model="editingNav.title">
+                  </div>
+                  <div class="form-group">
+                    <label for="message-text" class="col-form-label">导航URL:</label>
+                    <textarea class="form-control" v-model="editingNav.url"></textarea>
+                  </div>
+                </form>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary btn-sm" @click="saveEdit(nav)">保存</button>
+              </div>
+            </div>
+          </div>
+        </div><!-- Modal -->
+      </div>
+
+      <!---->
+      <!-- Modal -->
+      <div class="modal fade" id="newModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="">新建导航</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <form>
+                <div class="form-group">
+                  <label for="recipient-name" class="col-form-label">导航名称:</label>
+                  <input type="text" class="form-control" id="recipient-name" v-model="title">
+                </div>
+                <div class="form-group">
+                  <label for="message-text" class="col-form-label">导航链接:</label>
+                  <textarea class="form-control" id="message-text" v-model="url"></textarea>
+                </div>
+              </form>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">取消</button>
+              <button type="button" class="btn btn-primary btn-sm" @click="addNav">保存</button>
+            </div>
+          </div>
+        </div>
+      </div><!-- Modal -->
+      <!---->
+    </div>
+  </div>
+</div>
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            navs:[],
+            editingNav:{},
+            url:'',
+            title:'',
+            page: 0,
+            size: 2,
+            message:'',
+            messageShow:false,
+        },
+        created: function() {
+            this.$http.post('/nav/list', {
+                subjectId:$('#subjectId').attr("subjectId"),
+            }, {emulateJSON: true}).then(response => {
+                console.log(response.body)
+                if(response.body.success) {
+                    this.messageShow = true;
+                    this.message = response.body.msg;
+                    this.navs = response.body.obj;
+                } else {
+                    this.messageShow = true;
+                    this.message = response.body.msg;
+                }
+            }, response => {
+                this.messageShow = false;
+                this.message = '网络异常'
+            });
+        },
+        methods: {
+            addNav: function () {
+                this.$http.post('/nav/add', {
+                    subjectId:$('#subjectId').attr("subjectId"),
+                    title:this.title,
+                    url:this.url
+                }, {emulateJSON: true}).then(response => {
+                    $('#newModal').modal('hide');
+                    console.log(response.body)
+                    if(response.body.success) {
+                        this.messageShow = true;
+                        this.message = response.body.msg;
+                        this.navs.push(response.body.obj);
+                        this.url = '';
+                        this.title = '';
+                    } else {
+                        this.messageShow = true;
+                        this.message = response.body.msg;
+                    }
+                }, response => {
+                    this.messageShow = false;
+                    this.message = '网络异常'
+                });
+            },
+            delNav: function (obj) {
+                this.$http.post('/nav/del', {
+                    id: obj.id
+                }, {emulateJSON: true}).then(response => {
+                    console.log(response.body)
+                    if(response.body.success) {
+                        this.messageShow = true;
+                        this.message = response.body.msg;
+                        $('#delModal'+obj.id).modal('hide');
+                        var index = this.navs.indexOf(obj);
+                        if (index !== -1) this.navs.splice(index, 1);
+                        // $('.alert').show();
+                        // $('.alert').alert();
+                    } else {
+                        this.messageShow = true;
+                        this.message = response.body.msg;
+                    }
+                }, response => {
+                    this.errorShow = true;
+                    this.successShow = false;
+                    this.message = '网络异常'
+                });
+            },
+            editNav: function (obj) {
+                this.editingNav = obj;
+            },
+            saveEdit: function (subject) {
+                this.$http.post('/nav/saveEdit', {
+                    id:this.editingNav.id,
+                    title:this.editingNav.title,
+                    url:this.editingNav.url
+                }, {emulateJSON: true}).then(response => {
+                    $('#editModal'+subject.id).modal('hide');
+                    console.log(response.body)
+                    if(response.body.success) {
+                        this.messageShow = true;
+                        this.message = response.body.msg;
+                        $('.alert').show();
+                        $('.alert').alert();
+                    } else {
+                        this.messageShow = true;
+                        this.message = response.body.msg;
+                    }
+                }, response => {
+                    this.errorShow = true;
+                    this.successShow = false;
+                    this.message = '网络异常'
+                });
+            }
+        }
+    })
+</script>
+</body>
+</html>

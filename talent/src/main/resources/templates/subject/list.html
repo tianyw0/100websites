@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+<head th:replace="fragment/headTag"></head>
+<body>
+<div class="container">
+  <div th:replace="fragment/navbar"></div>
+  <div class="row" id="app" v-cloak>
+    <div class="col-md-6 offset-md-3 border rounded">
+      <nav class="navbar navbar-light">
+        <botton class="navbar-brand">主题列表</botton>
+        <a href="/subject/add" class="btn btn-warning btn-sm">新建主题</a>
+      </nav>
+      <div v-if="subjects.content == 0" class="text-secondary border-top">
+        本页暂无专题
+      </div>
+      <div class="card" v-for="subject in subjects.content">
+        <div class="card-body">
+          <h5 class="card-title">{{subject.name}}</h5>
+          <p class="card-text">{{subject.intro}}</p>
+          <a :href="'/nav/read/subject/'+subject.id" class="btn btn-warning btn-sm">导航</a>
+          <a :href="'/cheat/read/subject/'+subject.id" class="btn btn-warning btn-sm">速查</a>
+          <a :href="'/card/read/subject/'+subject.id" class="btn btn-warning btn-sm">卡片</a>
+          <a :href="'/article/list/subject/'+subject.id" class="btn btn-warning btn-sm">文章</a>
+          <div class="btn-group float-right">
+            <button type="button" class="btn btn-danger btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              设置
+            </button>
+            <div class="dropdown-menu">
+              <a class="dropdown-item" href="#" data-toggle="modal" :data-target="'#delModal'+subject.id">删除</a>
+              <a class="dropdown-item" href="#" data-toggle="modal" :data-target="'#editModal'+subject.id" @click="editSubject(subject);">编辑</a>
+            </div>
+          </div>
+        </div>
+        <!--模态框-->
+        <!-- Modal -->
+        <div class="modal" :id="'delModal' + subject.id" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+          <div class="modal-dialog  modal-dialog-centered modal-sm" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">删除专题</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                确定删除该专题吗？
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary btn-sm" @click="delSubject(subject)">确定</button>
+              </div>
+            </div>
+          </div>
+        </div><!-- Modal -->
+        <!-- Modal -->
+        <div class="modal fade" :id="'editModal' + subject.id" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="">编辑专题</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <form>
+                  <div class="form-group">
+                    <label for="recipient-name" class="col-form-label">专题名称:</label>
+                    <input type="text" class="form-control" id="recipient-name" v-model="editingSubject.name">
+                  </div>
+                  <div class="form-group">
+                    <label for="message-text" class="col-form-label">专题简介:</label>
+                    <textarea class="form-control" id="message-text" v-model="editingSubject.intro"></textarea>
+                  </div>
+                </form>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary btn-sm" @click="saveEdit(subject)">保存</button>
+              </div>
+            </div>
+          </div>
+        </div><!-- Modal -->
+        <!--模态框-->
+      </div>
+      <br>
+
+      <!--分页开始-->
+      <nav aria-label="...">
+        <ul class="pagination pagination-sm">
+          <li class="page-item" :class="subjects.first ? 'disabled' : ''">
+            <botton class="page-link" @click="pagechange(subjects.number - 1)" tabindex="-1">上页</botton>
+          </li>
+          <li v-for="n in subjects.totalPages" class="page-item" :class="subjects.number+1 == n ? 'active' : ''">
+            <botton class="page-link" @click="subjects.number+1 == n ? '' : pagechange(n-1)">{{n}}</botton>
+          </li>
+          <li class="page-item" :class="subjects.last ? 'disabled' : ''">
+            <botton class="page-link" @click="pagechange(subjects.number + 1)">下页</botton>
+          </li>
+        </ul>
+      </nav><!--分页结束-->
+
+
+    </div>
+  </div>
+</div>
+<script>
+var app = new Vue({
+  el: '#app',
+  data: {
+    subjects:{},
+    page: 0,
+    size: 2,
+    message:'',
+    messageShow:false,
+    editingSubject:{}
+  },
+  created: function() {
+      this.$http.post('/subject/list', {
+          page:this.page,
+          size:this.size
+      }, {emulateJSON: true}).then(response => {
+          console.log(response.body)
+          if(response.body.success) {
+              this.subjects = response.body.obj;
+              this.messageShow = true;
+              this.message = response.body.msg;
+          } else {
+              this.messageShow = true;
+              this.message = response.body.msg;
+          }
+      }, response => {
+          this.messageShow = true;
+          this.message = '网络异常'
+      });
+  },
+  methods: {
+    pagechange: function (pagenum) {
+      console.log(pagenum)
+      this.$http.post('/subject/list', {
+        page:pagenum,
+        size:this.size
+      }, {emulateJSON: true}).then(response => {
+        console.log(response.body)
+        if(response.body.success) {
+            this.subjects = response.body.obj;
+            this.messageShow = true;
+            this.message = response.body.msg;
+        } else {
+            this.messageShow = true;
+            this.message = response.body.msg;
+        }
+      }, response => {
+        this.errorShow = true;
+        this.successShow = false;
+        this.message = '网络异常'
+      });
+    },
+    delSubject: function (subject) {
+        this.$http.post('/subject/del', {
+            id: subject.id
+        }, {emulateJSON: true}).then(response => {
+            console.log(response.body)
+            if(response.body.success) {
+                this.messageShow = true;
+                this.message = response.body.msg;
+                $('#delModal'+subject.id).modal('hide');
+                var index = this.subjects.content.indexOf(subject);
+                if (index !== -1) this.subjects.content.splice(index, 1);
+                $('.alert').show();
+                $('.alert').alert();
+            } else {
+                this.messageShow = true;
+                this.message = response.body.msg;
+            }
+        }, response => {
+            this.errorShow = true;
+            this.successShow = false;
+            this.message = '网络异常'
+        });
+    },
+    editSubject: function (subject) {
+        this.editingSubject = subject;
+    },
+    saveEdit: function (subject) {
+      this.$http.post('/subject/saveEdit', {
+          id: this.editingSubject.id,
+          name:this.editingSubject.name,
+          intro:this.editingSubject.intro
+      }, {emulateJSON: true}).then(response => {
+          $('#editModal'+subject.id).modal('hide');
+          console.log(response.body)
+          if(response.body.success) {
+              this.messageShow = true;
+              this.message = response.body.msg;
+              $('.alert').show();
+              $('.alert').alert();
+          } else {
+              this.messageShow = true;
+              this.message = response.body.msg;
+          }
+      }, response => {
+          this.errorShow = true;
+          this.successShow = false;
+          this.message = '网络异常'
+      });
+    }
+  }
+})
+</script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+name = "genname"
+route = "genname.pages.dev/*"
+vars = { ENVIRONMENT = "local" }
+
+[env.preview]
+vars = { ENVIRONMENT = "preview" }
+[[d1_databases]]
+binding = "local_db_cchar"
+database_name = "test_db"
+database_id = "6fc75512-a9fc-49cc-a4b8-e6e4f6cf5822"

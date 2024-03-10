@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en">
+<head th:replace="fragment/headTag"></head>
+<body>
+<div class="container">
+    <div th:replace="fragment/navbar"></div>
+    <div class="row" id="app">
+        <div class="col-md-6 offset-md-3 border rounded">
+            <h5 style="padding:20px;" class="border-bottom">邮箱验证结果：</h5>
+          <p class="text-justify" th:text="${message}">message</p>
+        </div>
+    </div>
+</div>
+</body>
+</html>

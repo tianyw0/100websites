@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head th:replace="fragment/headTag"></head>
+<body>
+<div class="container">
+  <div th:replace="fragment/navbar"></div>
+  <div class="row justify-content-center" id="app" v-cloak>
+    <div id="subjectId" th:attr="subjectId=${subjectId}" class="d-none"></div>
+    <div class="col-md-6 offset-md-0 border rounded">
+      <nav class="navbar navbar-light border-bottom">
+        <a class="navbar-brand" href="#">主题-文章-文章详情-新建模式</a>
+        <a href="#" class="btn btn-danger btn-sm d-inline" style="margin-left:20px;" @click="add">保存</a>
+      </nav>
+      <div style="padding-bottom:15px;padding-top:15px;">
+        <div class="row justify-content-center" style="height:50px;">
+          <div class="col-md-10 p-0">
+            <input class="form-control form-control-lg rounded-0" type="text" placeholder="输入标题..." v-model="title">
+          </div>
+        </div>
+        <br>
+        <div class="row justify-content-center" style="height:500px;">
+          <div class="col-md-10 p-0">
+            <!--editor-->
+            <div id="editor">
+              <textarea class="form-control rounded-0" id="exampleFormControlTextarea1" rows="100" v-model="content"></textarea>
+            </div>
+            <!--editor-->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            title:'',
+            content:'',
+            message:'',
+            messageShow:false,
+        },
+        methods: {
+            add: function () {
+                this.$http.post('/article/add', {
+                    subjectId:$('#subjectId').attr("subjectId"),
+                    title:this.title,
+                    content:this.content
+                }, {emulateJSON: true}).then(response => {
+                    console.log(response.body)
+                    if(response.body.success) {
+                        this.messageShow = true;
+                        this.message = response.body.msg;
+                        this.content = '';
+                        this.title = '';
+                        window.location.href='/article/list/subject/'+$('#subjectId').attr("subjectId");
+                    } else {
+                        this.messageShow = true;
+                        this.message = response.body.msg;
+                    }
+                }, response => {
+                    this.messageShow = false;
+                    this.message = '网络异常'
+                });
+            }
+        }
+    })
+</script>
+</body>
+</html>

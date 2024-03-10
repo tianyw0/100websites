@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head th:replace="fragment/headTag"></head>
+<body>
+<div class="container">
+    <div th:replace="fragment/navbar"></div>
+    <div class="row" id="app" v-cloak>
+        <div class="col-md-6 offset-md-3 border rounded">
+            <h5 style="padding:20px;" class="border-bottom">用户注册</h5>
+            <form style="padding:20px;">
+                <div class="form-group">
+                    <label for="exampleInputEmail1">邮箱地址</label>
+                    <input v-model="email" type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="请输入邮箱地址...">
+                    <!--<small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>-->
+                </div>
+                <div class="form-group">
+                    <label for="exampleInputPassword1">密码</label>
+                    <input v-model="psd1" type="password" class="form-control" id="exampleInputPassword1" placeholder="请输入密码...">
+                </div>
+                <div class="form-group">
+                    <label for="exampleInputPassword1">确认密码</label>
+                    <input v-model="psd2" type="password" class="form-control" id="exampleInputPassword2" placeholder="请输入确认密码...">
+                </div>
+                <button v-on:click="commitUser" type="button" class="btn btn-primary">提交</button>
+            </form>
+          <div class="alert alert-primary" role="alert" v-if="errorShow">
+            注册异常：{{message}}
+          </div>
+            <div class="alert alert-primary" role="alert" v-if="successShow">
+                登录成功，前往邮箱验证： <a v-bind:href="message" class="alert-link">去验证</a>.
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+var app = new Vue({
+  el: '#app',
+  data: {
+    email: '',
+    psd1:'',
+    psd2:'',
+    errorShow:false,
+    successShow:false,
+    message:'',
+    mailAddress:''
+  },
+  methods: {
+    commitUser: function () {
+      this.$http.post('/user/signup', {
+        email:this.email,
+        psd1:this.psd1,
+        psd2:this.psd2
+      }, {emulateJSON: true}).then(response => {
+      console.log(response.body)
+        if(response.body.success) {
+            this.successShow = true;
+            this.errorShow = false;
+            this.message = response.body.msg;
+        } else {
+            this.errorShow = true;
+            this.successShow = false;
+            this.message = response.body.msg;
+        }
+      }, response => {
+        this.errorShow = true;
+        this.message = '网络异常'
+      });
+    },
+    show: function () {
+      console.log(this.email);
+      console.log(this.psd1,this.psd2)
+    }
+  }
+})
+</script>
+</body>
+</html>

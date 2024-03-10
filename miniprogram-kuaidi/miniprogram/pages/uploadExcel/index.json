@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "快递计算",
+  "usingComponents": {
+    "cloud-tip-modal": "/components/cloudTipModal/index"
+  }
+}

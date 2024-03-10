@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head th:replace="fragment/headTag"></head>
+<body>
+<div class="container">
+  <div th:replace="fragment/navbar"></div>
+  <div class="row justify-content-center" id="app">
+    <div class="col-md-6 offset-md-0 border rounded">
+      <nav class="navbar navbar-light border-bottom">
+        <a class="navbar-brand" href="#">主题-文章-文章详情-只读模式</a>
+        <a th:href="'/article/edit/'+${article.id}" class="btn btn-danger btn-sm d-inline" style="margin-left:20px;">编辑</a>
+      </nav>
+      <div style="padding-bottom:15px;padding-top:15px;">
+        <div class="row justify-content-center">
+          <div class="col-md-10">
+            <h2 style="padding-bottom:10px;color: #666666;font-family: Palatino Linotype, Book Antiqua, Palatino, Helvetica, STKaiti, SimSun, serif;" class="border-bottom" th:text="${article.title}">AlphaGo Zero 和强人工智能</h2>
+            <div class="mt-5" style="min-height: 400px;">
+              <p class="text-justify"  style="font-size: 18px;line-height: 1.8;font-family: lucida grande, lucida sans unicode, lucida, helvetica, Hiragino Sans GB, Microsoft YaHei,WenQuanYi Micro Hei, sans-serif;, Arial, Helvetica, sans-serif ,simsun" th:text="${article.content}">
+                有些人虽然支持我，可是他们误解了我写书的目的。他们说我写书是要“证明自己”或者“实现自己的价值”，我觉得这些都是有失尊重的说法。他们说那些话的原因，是因为他们自己的觉悟没到位，所以没能理解我的境界和地位。只有地位低的人才需要向别人证明自己，才需要拿“硅谷”，“Google”一类的招牌来撑起自己的自信，才需要写一些“硅谷回忆录”来让别人瞧得起自己。我不一样的。由于我的地位，世界上没有任何人有资格来接受我的“证明”，所以我不需要向任何人证明自己，当然我更不需要向那些说我闲话的人，被洗脑的蠢人证明自己。
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

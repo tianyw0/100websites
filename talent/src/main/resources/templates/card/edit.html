@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head th:replace="fragment/headTag"></head>
+<body>
+<div class="container">
+  <div th:replace="fragment/navbar"></div>
+  <div class="row" id="app" v-cloak>
+    <div class="col-md-12 offset-md-0 border rounded">
+
+      <nav class="navbar navbar-light border-bottom">
+        <a class="navbar-brand" href="#" th:attr="subjectId=${subjectId}" id="subjectId">主题-卡片-编辑模式</a>
+        <div>
+          <div class="custom-control custom-checkbox d-inline">
+            <input type="checkbox" class="custom-control-input" id="customCheck1">
+            <label class="custom-control-label text-muted font-weight-light" for="customCheck1"><small>检测模式</small></label>
+          </div>
+          <a href="#" class="btn btn-danger btn-sm d-inline" style="margin-left:20px;" data-toggle="modal" data-target="#newModal">添加card</a>
+        </div>
+      </nav>
+
+      <div style="padding-bottom:15px;padding-top:15px;" class="d-flex flex-wrap">
+        <div v-for="card in cards" class="card text-center" style="max-width:277px;min-width:277px;max-height:187px;min-height:187px;">
+          <div class="card-header border-bottom-0 d-flex justify-content-between">
+            Building an App
+            <!--<div class="btn-group float-right" role="group" aria-label="Basic example">-->
+              <!--<a href="#" class="btn btn-warning btn-sm">正</a>-->
+              <!--<a href="#" class="btn btn-warning btn-sm">反</a>-->
+            <!--</div>-->
+            <div class="btn-group float-right">
+              <button type="button" class="btn btn-danger btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                设置
+              </button>
+              <div class="dropdown-menu">
+                <a class="dropdown-item" href="#" data-toggle="modal" :data-target="'#delModal'+card.id">删除</a>
+                <a class="dropdown-item" href="#" data-toggle="modal" :data-target="'#editModal'+card.id" @click="edit(card);">编辑</a>
+              </div>
+            </div>
+          </div>
+          <div class="card-body bg-primary text-light">
+            <p class="card-text">{{card.question}}</p>
+          </div><!--cardbody-end-->
+          <div class="card-body">
+            <p class="card-text">{{card.answer}}</p>
+          </div><!--cardbody-end-->
+
+          <!---->
+          <!-- delModal -->
+          <div class="modal" :id="'delModal' + card.id" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="exampleModalLabel">删除导航</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  确定删除该导航吗？
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">取消</button>
+                  <button type="button" class="btn btn-primary btn-sm" @click="del(card)">确定</button>
+                </div>
+              </div>
+            </div>
+          </div><!-- Modal -->
+          <!-- editModal -->
+          <div class="modal fade" :id="'editModal' + card.id" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">编辑导航</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <form>
+                    <div class="form-group">
+                      <label for="recipient-name" class="col-form-label">卡片正面:</label>
+                      <input type="text" class="form-control" v-model="editingCard.question">
+                    </div>
+                    <div class="form-group">
+                      <label for="message-text" class="col-form-label">卡片反面:</label>
+                      <textarea class="form-control" v-model="editingCard.answer"></textarea>
+                    </div>
+                  </form>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">取消</button>
+                  <button type="button" class="btn btn-primary btn-sm" @click="saveEdit(card)">保存</button>
+                </div>
+              </div>
+            </div>
+          </div><!-- Modal -->
+          <!---->
+        </div><!--card-end-->
+      </div>
+    </div>
+
+    <!---->
+    <!-- Modal -->
+    <div class="modal fade" id="newModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="">新建卡片</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form>
+              <div class="form-group">
+                <label for="recipient-name" class="col-form-label">卡片正面:</label>
+                <input type="text" class="form-control" id="recipient-name" v-model="question">
+              </div>
+              <div class="form-group">
+                <label for="message-text" class="col-form-label">卡片反面:</label>
+                <textarea class="form-control" id="message-text" v-model="answer"></textarea>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">取消</button>
+            <button type="button" class="btn btn-primary btn-sm" @click="add">保存</button>
+          </div>
+        </div>
+      </div>
+    </div><!-- Modal -->
+    <!---->
+  </div>
+</div>
+<script>
+  var app = new Vue({
+    el: '#app',
+    data: {
+      cards:[],
+      editingCard:{},
+      question:'',
+      answer:'',
+      page: 0,
+      size: 2,
+      message:'',
+      messageShow:false,
+    },
+    created: function() {
+      this.$http.post('/card/list', {
+        subjectId:$('#subjectId').attr("subjectId"),
+      }, {emulateJSON: true}).then(response => {
+        console.log(response.body)
+        if(response.body.success) {
+          this.messageShow = true;
+          this.message = response.body.msg;
+          this.cards = response.body.obj;
+        } else {
+          this.messageShow = true;
+          this.message = response.body.msg;
+        }
+      }, response => {
+        this.messageShow = false;
+        this.message = '网络异常'
+      });
+    },
+    methods: {
+      add: function () {
+        this.$http.post('/card/add', {
+          subjectId:$('#subjectId').attr("subjectId"),
+          answer:this.answer,
+          question:this.question
+        }, {emulateJSON: true}).then(response => {
+          $('#newModal').modal('hide');
+          console.log(response.body)
+          if(response.body.success) {
+            this.messageShow = true;
+            this.message = response.body.msg;
+            this.cards.push(response.body.obj);
+            this.question = '';
+            this.answer = '';
+          } else {
+            this.messageShow = true;
+            this.message = response.body.msg;
+          }
+        }, response => {
+          this.messageShow = false;
+          this.message = '网络异常'
+        });
+      },
+      del: function (obj) {
+        this.$http.post('/card/del', {
+          id: obj.id
+        }, {emulateJSON: true}).then(response => {
+          console.log(response.body)
+          if(response.body.success) {
+            this.messageShow = true;
+            this.message = response.body.msg;
+            $('#delModal'+obj.id).modal('hide');
+            var index = this.cards.indexOf(obj);
+            if (index !== -1) this.cards.splice(index, 1);
+          } else {
+            this.messageShow = true;
+            this.message = response.body.msg;
+          }
+        }, response => {
+          this.errorShow = true;
+          this.successShow = false;
+          this.message = '网络异常'
+        });
+      },
+      edit: function (obj) {
+        this.editingCard = obj;
+      },
+      saveEdit: function (card) {
+        this.$http.post('/card/saveEdit', {
+          id:this.editingCard.id,
+          answer:this.editingCard.answer,
+          question:this.editingCard.question
+        }, {emulateJSON: true}).then(response => {
+          $('#editModal'+card.id).modal('hide');
+          console.log(response.body)
+          if(response.body.success) {
+            this.messageShow = true;
+            this.message = response.body.msg;
+          } else {
+            this.messageShow = true;
+            this.message = response.body.msg;
+          }
+        }, response => {
+          this.errorShow = true;
+          this.successShow = false;
+          this.message = '网络异常'
+        });
+      }
+    }
+  })
+</script>
+</body>
+</html>

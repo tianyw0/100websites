@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head th:replace="fragment/headTag"></head>
+<body>
+<div class="container">
+  <div th:replace="fragment/navbar"></div>
+  <div class="row" id="app" v-cloak>
+    <div class="col-md-6 offset-md-3 border rounded">
+      <nav class="navbar navbar-light border-bottom">
+        <a class="navbar-brand" href="#">新建主题</a>
+      </nav>
+
+      <div style="padding-bottom:15px;padding-top:15px;">
+        <form onsubmit="return false;">
+          <div class="form-group">
+            <label for="exampleInputEmail1">主题名称</label>
+            <input v-model="name" type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="请输入主题名称...">
+          </div>
+          <div class="form-group">
+            <label for="exampleFormControlTextarea1">主题简介</label>
+            <textarea v-model="intro" class="form-control" id="exampleFormControlTextarea1" rows="3" placeholder="请输入主题简介...(300字以内)"></textarea>
+          </div>
+          <button @click="addSubject" type="button" class="btn btn-primary btn-sm">提交</button>
+        </form>
+        <div v-if="messageShow" class="alert alert-success mt-2" role="alert">
+          {{message}}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+var app = new Vue({
+  el: '#app',
+  data: {
+    name: '',
+    intro:'',
+    message:'',
+    messageShow:false
+  },
+  methods: {
+    addSubject: function () {
+      this.$http.post('/subject/add', {
+        name:this.name,
+        intro:this.intro
+      }, {emulateJSON: true}).then(response => {
+        console.log(response.body)
+        if(response.body.success) {
+            this.messageShow = true;
+            this.message = response.body.msg;
+            window.location.href = '/subject/list'
+        } else {
+            this.messageShow = true;
+            this.message = response.body.msg;
+        }
+      }, response => {
+        this.errorShow = true;
+        this.successShow = false;
+        this.message = '网络异常'
+      });
+    }
+  }
+})
+</script>
+</body>
+</html>

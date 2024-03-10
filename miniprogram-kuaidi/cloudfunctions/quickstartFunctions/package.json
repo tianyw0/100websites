@@ -1,0 +1,17 @@
+{
+  "name": "parse",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "田永威",
+  "license": "ISC",
+  "dependencies": {
+    "moment": "^2.29.4",
+    "node-xlsx": "^0.21.0",
+    "randomstring": "^1.2.2",
+    "wx-server-sdk": "^2.6.3"
+  }
+}

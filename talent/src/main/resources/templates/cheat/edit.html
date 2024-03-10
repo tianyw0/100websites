@@ -1,0 +1,259 @@
+<!doctype html>
+<!--suppress ALL -->
+<html lang="en">
+<head th:replace="fragment/headTag"></head>
+<body>
+<div class="container">
+  <div th:replace="fragment/navbar"></div>
+  <div class="row" id="app" v-cloak>
+    <div class="col-md-12 offset-md-0 border rounded">
+      <nav class="navbar navbar-light border-bottom">
+        <a class="navbar-brand text-secondary" href="#" th:text="'主题速查（' + ${subject.name} + '）'" th:attr="subjectId=${subject.id}" id="subjectId">主题速查</a>
+        <a href="#" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#newModal">添加sheet</a>
+      </nav>
+
+      <div style="padding-bottom:15px;padding-top:15px;" class="d-flex flex-wrap">
+        <div v-for="cheat in cheats" class="card" style="width:363px;">
+          <div class="card-header border-bottom-0">
+            {{cheat.title}}
+            <div class="btn-group float-right">
+              <button type="button" class="btn btn-danger btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                设置
+              </button>
+              <div class="dropdown-menu">
+                <a class="dropdown-item" href="#" data-toggle="modal" :data-target="'#delModal'+cheat.id">删除</a>
+                <a class="dropdown-item" href="#" data-toggle="modal" :data-target="'#editModal'+cheat.id" @click="edit(cheat);">编辑</a>
+              </div>
+            </div>
+          </div>
+          <div class="card-body">
+            <ul class="list-group">
+              <li v-for="item in cheat.content" class="list-group-item d-flex justify-content-between align-items-center">
+                <span>{{item.key}}</span>
+                <span class="text-primary">{{item.value}}</span>
+              </li>
+            </ul>
+          </div><!--cardbody-end-->
+
+          <!---->
+          <!-- delModal -->
+          <div class="modal" :id="'delModal' + cheat.id" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="exampleModalLabel">删除导航</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  确定删除该sheet吗？
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">取消</button>
+                  <button type="button" class="btn btn-primary btn-sm" @click="del(cheat)">确定</button>
+                </div>
+              </div>
+            </div>
+          </div><!-- Modal -->
+          <!-- editModal -->
+          <div class="modal fade" :id="'editModal' + cheat.id" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">编辑sheet</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <form>
+                    <div class="form-group">
+                      <label for="recipient-name-1" class="col-form-label">title:</label>
+                      <input type="text" class="form-control" id="recipient-name-1" v-model="editingCheat.title">
+                    </div>
+                    <div class="form-group">
+                      <label for="" class="col-form-label">key-value:</label>
+                      <!--<textarea class="form-control" id="message-text" v-model="content"></textarea>-->
+                    </div>
+                    <ul class="list-group">
+                      <li v-for="item in editingCheat.content" class="list-group-item d-flex justify-content-between align-items-center">
+                        <input type="text" class="form-control" v-model="item.key">
+                        <input type="text" class="form-control" v-model="item.value">
+                        <button type="button" class="btn btn-danger btn-md ml-1" v-if="content.length > 1" @click="removeItem(item)"><span class="oi oi-delete"></span></button>
+                      </li>
+                    </ul>
+                    <br>
+                    <button type="button" class="btn btn-primary btn-sm btn-block"  @click="addItem(editingCheat.content)">添加key-value</button>
+                  </form>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">取消</button>
+                  <button type="button" class="btn btn-primary btn-sm" @click="saveEdit(cheat)">保存</button>
+                </div>
+              </div>
+            </div>
+          </div><!-- Modal -->
+          <!---->
+         </div><!--card-end-->
+
+        <!---->
+        <!-- Modal -->
+        <div class="modal fade" id="newModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="">新建sheet</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <form>
+                  <div class="form-group">
+                    <label for="recipient-name" class="col-form-label">title:</label>
+                    <input type="text" class="form-control" id="recipient-name" v-model="title">
+                  </div>
+                  <div class="form-group">
+                    <label for="" class="col-form-label">key-value:</label>
+                    <!--<textarea class="form-control" id="message-text" v-model="content"></textarea>-->
+                  </div>
+                  <ul class="list-group">
+                    <li v-for="item in content" class="list-group-item d-flex justify-content-between align-items-center">
+                      <input type="text" class="form-control" v-model="item.key">
+                      <input type="text" class="form-control" v-model="item.value">
+                      <button type="button" class="btn btn-danger btn-md ml-1" v-if="content.length > 1" @click="removeItem(item)"><span class="oi oi-delete"></span></button>
+                    </li>
+                  </ul>
+                  <br>
+                  <button type="button" class="btn btn-primary btn-sm btn-block"  @click="addItem(content)">添加key-value</button>
+                </form>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary btn-sm" @click="add">保存</button>
+              </div>
+            </div>
+          </div>
+        </div><!-- Modal -->
+        <!---->
+
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  var app = new Vue({
+    el: '#app',
+    data: {
+      cheats:[],
+      editingCheat:{},
+      title:'',
+      content:[{'key':'','value':''}],
+      message:'',
+      messageShow:false,
+    },
+    created: function() {
+      this.$http.post('/cheat/list', {
+        subjectId:$('#subjectId').attr("subjectId"),
+      }, {emulateJSON: true}).then(response => {
+        console.log(response.body.obj)
+        if(response.body.success) {
+          this.messageShow = true;
+          this.message = response.body.msg;
+          this.cheats = response.body.obj;
+          for (var i=0,length = this.cheats.length; i < length; i++) {
+            this.cheats[i].content = JSON.parse(this.cheats[i].content);
+          }
+        } else {
+          this.messageShow = true;
+          this.message = response.body.msg;
+        }
+      }, response => {
+        this.messageShow = false;
+        this.message = '网络异常'
+      });
+    },
+    methods: {
+      addItem: function (curContent) {
+        console.log(curContent)
+        curContent.push({"key":"","value":""});
+      },
+      removeItem: function (obj) {
+        var index = this.content.indexOf(obj);
+        if (index !== -1) this.content.splice(index, 1);
+      },
+      add: function () {
+        console.log(JSON.stringify(this.content))
+        this.$http.post('/cheat/add', {
+          subjectId:$('#subjectId').attr("subjectId"),
+          title:this.title,
+          content:JSON.stringify(this.content)
+        }, {emulateJSON: true}).then(response => {
+          $('#newModal').modal('hide');
+          console.log(response.body)
+          if(response.body.success) {
+            this.messageShow = true;
+            this.message = response.body.msg;
+            response.body.obj.content = JSON.parse(response.body.obj.content)
+            this.cheats.push(response.body.obj);
+            this.title = '';
+            this.content = [{'key':'','value':''}];
+          } else {
+            this.messageShow = true;
+            this.message = response.body.msg;
+          }
+        }, response => {
+          this.messageShow = false;
+          this.message = '网络异常'
+        });
+      },
+      del: function (obj) {
+        this.$http.post('/cheat/del', {
+          id: obj.id
+        }, {emulateJSON: true}).then(response => {
+          console.log(response.body)
+          if(response.body.success) {
+            this.messageShow = true;
+            this.message = response.body.msg;
+            $('#delModal'+obj.id).modal('hide');
+            var index = this.cheats.indexOf(obj);
+            if (index !== -1) this.cheats.splice(index, 1);
+          } else {
+            this.messageShow = true;
+            this.message = response.body.msg;
+          }
+        }, response => {
+          this.messageShow = true;
+          this.message = '网络异常'
+        });
+      },
+      edit: function (obj) {
+        this.editingCheat = obj;
+      },
+      saveEdit: function (cheat) {
+        this.$http.post('/cheat/saveEdit', {
+          id:this.editingCheat.id,
+          title:this.editingCheat.title,
+          content:JSON.stringify(this.editingCheat.content)
+        }, {emulateJSON: true}).then(response => {
+          $('#editModal'+cheat.id).modal('hide');
+          console.log(response.body)
+          if(response.body.success) {
+            this.messageShow = true;
+            this.message = response.body.msg;
+          } else {
+            this.messageShow = true;
+            this.message = response.body.msg;
+          }
+        }, response => {
+          this.errorShow = true;
+          this.successShow = false;
+          this.message = '网络异常'
+        });
+      }
+    }
+  })
+</script>
+</body>
+</html>

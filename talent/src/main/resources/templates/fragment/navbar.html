@@ -1,0 +1,86 @@
+<div class="row" id="navbar">
+  <nav class="navbar navbar-expand-lg navbar-light col-md-12">
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo03" aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <a class="navbar-brand" href="/">天赋</a>
+
+    <div class="collapse navbar-collapse" id="navbarTogglerDemo03">
+      <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+        <li class="nav-item active">
+          <a class="nav-link" href="/">首页 <span class="sr-only">(current)</span></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/subject/list">主题列表</a>
+        </li>
+        <!--<li class="nav-item">-->
+          <!--<a class="nav-link disabled" href="#">广场</a>-->
+        <!--</li>-->
+      </ul>
+      <form class="form-inline my-2 my-lg-0">
+        <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+        <button class="btn btn-outline-success my-2 my-sm-0" type="submit"><span class="oi oi-magnifying-glass"></span></button>
+        <div v-if="!isLogin">
+          <a class="btn btn-warning my-2 my-sm-0 ml-1" href="/user/signin">登录</a>
+          <a class="btn btn-light my-2 my-sm-0 ml-1" href="/user/signup">注册</a>
+        </div>
+      </form>
+      <div class="btn-group ml-1" v-if="isLogin">
+        <button type="button" class="btn btn-warning dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          {{user.username}}
+        </button>
+        <div class="dropdown-menu">
+          <a class="dropdown-item" href="#">{{user.username}}</a>
+          <a class="dropdown-item" href="#">设置</a>
+          <a class="dropdown-item" href="#">个人信息</a>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item" v-on:click="loginout" href="#">安全退出</a>
+        </div>
+      </div>
+      <a href="https://wj.qq.com/s/1973508/ad18/" target="_blank" class="btn btn-primary ml-1" role="button" aria-pressed="true">反馈</a>
+    </div>
+  </nav>
+  <script>
+    var app = new Vue({
+      el: '#navbar',
+      data: {
+        message:'',
+        isLogin:false,
+        user:''
+      },
+      created: function () {
+        this.$http.post('/user/checklogin', {
+
+        }, {emulateJSON: true}).then(response => {
+          console.log(response.body)
+          if(response.body.success) {
+              this.isLogin = true;
+              this.user = response.body.obj;
+              // if
+            if(window.location.href.indexOf('/user/signin') != -1) {
+              window.location.href = '/';
+            }
+          } else {
+              this.isLogin = false;
+          }
+        }, response => {
+          this.message = '网络异常'
+        });
+      },
+      methods: {
+        loginout : function() {
+          this.$http.post('/user/signout', {
+
+          }, {emulateJSON: true}).then(response => {
+            console.log(response.body)
+            if(response.body.success) {
+                window.location.href="/";
+            }
+          }, response => {
+            this.message = '网络异常'
+          });
+        }
+      }
+    })
+  </script>
+</div>
